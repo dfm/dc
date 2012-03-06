@@ -32,6 +32,10 @@ if __name__ == '__main__':
     cursor = db.cursor()
 
     if "--info" in sys.argv:
+        try:
+            N = int(sys.argv[sys.argv.index("--info")+1])
+        except:
+            N = 10
         print "URLs\n===="
         for d in cursor.execute("select * from urls"):
             print d
@@ -39,7 +43,8 @@ if __name__ == '__main__':
         for d in cursor.execute("select * from apps"):
             print d
         print "\nUsage\n====="
-        for d in cursor.execute("select * from app_usage"):
+        for d in cursor.execute("""select * from app_usage order by id desc
+                limit ?""", (N,)):
             print d
         cursor.close()
         sys.exit(0)
@@ -61,26 +66,24 @@ if __name__ == '__main__':
 
     while True:
         cursor = db.cursor()
-
         appname = get_current_appname()
-        date = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S")
+        if appname not in ["loginwindow"]:
+            date = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S")
+            cursor.execute("insert or ignore into apps values (null, ?)",
+                    (appname,))
+            cursor.execute("""insert into app_usage values (null,
+                    (select id from apps where app=?), ?)""",
+                    (appname, date))
 
-        cursor.execute("insert or ignore into apps values (null, ?)",
-                (appname,))
-        cursor.execute("""insert into app_usage values (null,
-                (select id from apps where app=?), ?)""",
-                (appname, date))
+            if appname == "Google Chrome":
+                url = get_url_from_chrome()
+                if url is not None:
+                        cursor.execute("insert or ignore into urls values (?, 0)",
+                                (url,))
+                        cursor.execute("update urls set num=num+1 where url=?",
+                                (url,))
 
-        if appname == "Google Chrome":
-            url = get_url_from_chrome()
-            if url is not None:
-                    cursor.execute("insert or ignore into urls values (?, 0)",
-                            (url,))
-                    cursor.execute("update urls set num=num+1 where url=?",
-                            (url,))
-
-        db.commit()
+            db.commit()
         cursor.close()
-
         time.sleep(timeout)
 
