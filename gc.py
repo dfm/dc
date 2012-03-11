@@ -44,9 +44,9 @@ if ret != 0:
 
 # Parse return values
 o = proc.communicate()[0]
+print o
 g = re.search("\[.*?\] (.*?) ([0-9]*?) files changed, ([0-9]*?) insertions\(\+\),"\
     +"([0-9]*?) deletions\(\-\)", o, flags=re.M|re.S).groups()
-print o
 
 # Get the remote info
 i = 1
