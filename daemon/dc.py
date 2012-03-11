@@ -29,10 +29,10 @@ end tell'
     proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     if proc.wait() == 0:
         try:
-            ext = os.path.splitext(proc.communicate()[0].split()[0])[1]
+            ext = os.path.splitext(proc.communicate()[0].split()[0])[1][1:]
         except:
             return None
-        return ext[1:]
+        return ext
     return None
 
 if __name__ == '__main__':
