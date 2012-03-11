@@ -13,14 +13,17 @@ if re.search("\-[a-zA-Z]*m", args) is None:
     print "You need to use the command line message for now... sorry!"
     sys.exit(1)
 cmd = "git commit "+args
-print cmd
+print "Running:", cmd
 
 proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
 ret  = proc.wait()
-if ret == 0:
-    print "Success..."
-    print proc.communicate()[0]
-else:
+if ret != 0:
     print proc.communicate()[0]
     sys.exit(ret)
+
+o = proc.communicate()[0]
+
+print re.search("(.*?) files changed, (.*?) insertions(+), (.*?) deletions(-)").groups()
+
+print o
 
