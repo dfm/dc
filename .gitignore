@@ -1,4 +1,4 @@
-.dc.db
+*.db
 *.pyc
 ca.danfm.dc.plist
 *.log
