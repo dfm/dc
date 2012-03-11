@@ -58,10 +58,13 @@ bd = os.path.join(*(dirs[:-i]))
 # Update the database
 cursor.execute("""create table if not exists commits
     (id integer primary key, message text, files integer, insertions integer,
-    deletions integer, dir text, date text)""")
-date = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S")
-cursor.execute("insert into commits values (null,?,?,?,?,?,?)",
-            list(g)+[bd,date])
+    deletions integer, dir text, year integer, month integer,
+        day integer, weekday integer, time real)""")
+d = datetime.datetime.now()
+ts = (d.hour*60+d.minute)*60+d.second+d.microsecond*1e-6
+date = [d.year, d.month, d.day, d.weekday(), ts]
+cursor.execute("insert into commits values (null,?,?,?,?,?,?,?,?,?,?)",
+            list(g)+[bd]+date)
 db.commit()
 cursor.close()
 

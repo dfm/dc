@@ -73,11 +73,13 @@ if __name__ == '__main__':
     cursor.execute("""create table if not exists apps
         (id integer primary key, app text unique)""")
     cursor.execute("""create table if not exists app_usage
-        (id integer primary key, app_id integer, date text)""")
+        (id integer primary key, app_id integer, year integer, month integer,
+        day integer, weekday integer, time real)""")
     cursor.execute("""create table if not exists urls
         (url text primary key, num integer default 0)""")
     cursor.execute("""create table if not exists docs
-        (id integer primary key, ext text, date text)""")
+        (id integer primary key, ext text, year integer, month integer,
+        day integer, weekday integer, time real)""")
     db.commit()
     cursor.close()
 
@@ -90,12 +92,16 @@ if __name__ == '__main__':
         cursor = db.cursor()
         appname = get_current_appname()
         if appname not in ["loginwindow"]:
-            date = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S")
+            d = datetime.datetime.now()
+            ts = (d.hour*60+d.minute)*60+d.second+d.microsecond*1e-6
+            date = [d.year, d.month, d.day, d.weekday(), ts]
+
+
             cursor.execute("insert or ignore into apps values (null, ?)",
                     (appname,))
             cursor.execute("""insert into app_usage values (null,
-                    (select id from apps where app=?), ?)""",
-                    (appname, date))
+                    (select id from apps where app=?), ?,?,?,?,?)""",
+                    [appname]+date)
 
             if appname == "Google Chrome":
                 url = get_url_from_chrome()
@@ -107,8 +113,8 @@ if __name__ == '__main__':
             elif appname == "MacVim":
                 ext = get_filetype_from_vim()
                 if ext is not None:
-                    cursor.execute("insert into docs values (null,?,?)",
-                            (ext, date))
+                    cursor.execute("insert into docs values (null,?,?,?,?,?)",
+                            [ext]+date)
 
             db.commit()
         cursor.close()
