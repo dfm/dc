@@ -37,7 +37,7 @@ i = 1
 for i in range(1, len(dirs)):
     if os.path.exists(os.path.join(*(dirs[:-i] + [".git"]))):
         break
-print "Basedir: "+os.path.join(*(dirs[:-i]))
+bd = os.path.join(*(dirs[:-i]))
 
 # Update the database
 db_fn = os.path.join(*(dirs[:-1]+[".gc.db"]))
@@ -45,10 +45,10 @@ db = sqlite3.connect(db_fn)
 cursor = db.cursor()
 cursor.execute("""create table if not exists commits
     (id integer primary key, files integer, insertions integer,
-    deletions integer, date text)""")
+    deletions integer, dir text, date text)""")
 date = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S")
-cursor.execute("insert into docs values (null,?,?,?,?)",
-            list(g)+[date])
+cursor.execute("insert into commits values (null,?,?,?,?,?)",
+            list(g)+[bd,date])
 db.commit()
 cursor.close()
 
