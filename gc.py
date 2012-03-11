@@ -65,4 +65,3 @@ cursor.execute("insert into commits values (null,?,?,?,?,?,?)",
 db.commit()
 cursor.close()
 
-
