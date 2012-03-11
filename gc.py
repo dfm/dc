@@ -44,8 +44,8 @@ if ret != 0:
 
 # Parse return values
 o = proc.communicate()[0]
-g = re.search("(.*?) files changed, (.*?) insertions\(\+\),"\
-    +"(.*?) deletions\(\-\)", o).groups()
+g = re.search("\[.*?\] (.*?) (.*?) files changed, (.*?) insertions\(\+\),"\
+    +"(.*?) deletions\(\-\)", o, flags=re.M|re.S).groups()
 print o
 
 # Get the remote info
@@ -57,10 +57,10 @@ bd = os.path.join(*(dirs[:-i]))
 
 # Update the database
 cursor.execute("""create table if not exists commits
-    (id integer primary key, files integer, insertions integer,
+    (id integer primary key, message text, files integer, insertions integer,
     deletions integer, dir text, date text)""")
 date = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S")
-cursor.execute("insert into commits values (null,?,?,?,?,?)",
+cursor.execute("insert into commits values (null,?,?,?,?,?,?)",
             list(g)+[bd,date])
 db.commit()
 cursor.close()
