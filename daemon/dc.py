@@ -42,7 +42,7 @@ if __name__ == '__main__':
     import sqlite3
 
     # Setup database
-    db_fn = os.path.join(*(list(os.path.split(__file__)[:-1])+[".dc.db"]))
+    db_fn = os.path.join(*(list(os.path.split(os.path.abspath(__file__))[:-1])+[".dc.db"]))
     db = sqlite3.connect(db_fn)
     cursor = db.cursor()
 

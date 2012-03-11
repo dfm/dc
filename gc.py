@@ -4,9 +4,12 @@ Wrapper around git commit to keep track of stuff.
 
 """
 
+import os
 import sys
 import subprocess
 import re
+import datetime
+import sqlite3
 
 args = " ".join([a if " " not in a else "\""+a+"\"" for a in sys.argv[1:]])
 if re.search("\-[a-zA-Z]*m", args) is None:
@@ -15,16 +18,38 @@ if re.search("\-[a-zA-Z]*m", args) is None:
 cmd = "git commit "+args
 print "Running:", cmd
 
+# Run the commit command
 proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
 ret  = proc.wait()
 if ret != 0:
     print proc.communicate()[0]
     sys.exit(ret)
 
+# Parse return values
 o = proc.communicate()[0]
 g = re.search("(.*?) files changed, (.*?) insertions\(\+\),"\
     +"(.*?) deletions\(\-\)", o).groups()
-print g
-
 print o
+
+# Get the remote info
+dirs = list(os.path.split(os.path.abspath(__file__)))
+i = 1
+for i in range(1, len(dirs)):
+    if os.path.exists(os.path.join(*(dirs[:-i] + ".git"))):
+        break
+print "Basedir: "+os.path.join(*(dirs[:-i]))
+
+# Update the database
+db_fn = os.path.join(*(dirs[:-1]+[".gc.db"]))
+db = sqlite3.connect(db_fn)
+cursor = db.cursor()
+cursor.execute("""create table if not exists commits
+    (id integer primary key, files integer, insertions integer,
+    deletions integer, date text)""")
+date = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S")
+cursor.execute("insert into docs values (null,?,?,?,?)",
+            list(g)+[date])
+db.commit()
+cursor.close()
+
 
