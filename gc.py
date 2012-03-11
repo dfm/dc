@@ -22,8 +22,9 @@ if ret != 0:
     sys.exit(ret)
 
 o = proc.communicate()[0]
-
-print re.search("(.*?) files changed, (.*?) insertions(+), (.*?) deletions(-)").groups()
+g = re.search("(.*?) files changed, (.*?) insertions\(\+\),"\
+    +"(.*?) deletions\(\-\)", o).groups()
+print g
 
 print o
 
