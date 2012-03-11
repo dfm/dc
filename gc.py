@@ -35,7 +35,7 @@ print o
 dirs = list(os.path.split(os.path.abspath(__file__)))
 i = 1
 for i in range(1, len(dirs)):
-    if os.path.exists(os.path.join(*(dirs[:-i] + ".git"))):
+    if os.path.exists(os.path.join(*(dirs[:-i] + [".git"]))):
         break
 print "Basedir: "+os.path.join(*(dirs[:-i]))
 
