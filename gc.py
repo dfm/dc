@@ -48,12 +48,15 @@ print o,
 g = re.search("\[.*?\] (.*?) ([0-9]*?) files changed.*?([0-9]*?) insertions.*?"\
     +"([0-9]*?) deletions", o, flags=re.M|re.S).groups()
 
-# Get the remote info
-i = 1
-for i in range(1, len(dirs)):
-    if os.path.exists(os.path.join(*(dirs[:-i] + [".git"]))):
-        break
-bd = os.path.join(*(dirs[:-i]))
+# Get root git repo
+fs = list(os.path.split(os.path.abspath(os.getcwd())))
+if os.path.exists(os.path.join(*(fs + [".git"]))):
+    bd = os.path.join(*(fs))
+else:
+    for i in range(1, len(fs)):
+        if os.path.exists(os.path.join(*(fs[:-i] + [".git"]))):
+            break
+    bd = os.path.join(*(fs[:-i]))
 
 # Update the database
 cursor.execute("""create table if not exists commits
