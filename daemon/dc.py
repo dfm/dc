@@ -39,13 +39,9 @@ if __name__ == '__main__':
     import sys
     import time
     import datetime
-    import sqlite3
+    from db import db
 
-    # Setup database
-    db_fn = os.path.join(*(list(os.path.split(os.path.abspath(__file__))[:-1])+[".dc.db"]))
-    db = sqlite3.connect(db_fn)
     cursor = db.cursor()
-
     if "--info" in sys.argv:
         try:
             N = int(sys.argv[sys.argv.index("--info")+1])
@@ -68,19 +64,6 @@ if __name__ == '__main__':
             print d
         cursor.close()
         sys.exit(0)
-
-    # Create the tables
-    cursor.execute("""create table if not exists apps
-        (id integer primary key, app text unique)""")
-    cursor.execute("""create table if not exists app_usage
-        (id integer primary key, app_id integer, year integer, month integer,
-        day integer, weekday integer, time real)""")
-    cursor.execute("""create table if not exists urls
-        (url text primary key, num integer default 0)""")
-    cursor.execute("""create table if not exists docs
-        (id integer primary key, ext text, year integer, month integer,
-        day integer, weekday integer, time real)""")
-    db.commit()
     cursor.close()
 
     try:
