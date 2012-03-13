@@ -113,7 +113,7 @@ if __name__ == '__main__':
             elif appname == "MacVim":
                 ext = get_filetype_from_vim()
                 if ext is not None:
-                    cursor.execute("insert into docs values (null,?,?,?,?,?)",
+                    cursor.execute("insert into docs values (null,?,?,?,?,?,?)",
                             [ext]+date)
 
             db.commit()
