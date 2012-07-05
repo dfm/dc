@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>KeepAlive</key>
+        <true/>
+
+        <key>Label</key>
+        <string>ca.danfm.keys</string>
+
+        <key>ProgramArguments</key>
+        <array>
+            <string>{{ dirname }}/keys</string>
+        </array>
+
+        <key>RunAtLoad</key>
+        <true/>
+
+        <key>UserName</key>
+        <string>dfm</string>
+
+        <key>WorkingDirectory</key>
+        <string>{{ dirname }}</string>
+
+        <key>StandardErrorPath</key>
+        <string>{{ dirname }}/keys.log</string>
+
+        <key>StandardOutPath</key>
+        <string>{{ dirname }}/keys.log</string>
+    </dict>
+</plist>
+
