@@ -1,4 +1,8 @@
 // Inspired by: https://gist.github.com/3019549
+// You need to have enabled access for assistive devices in:
+//      System Preferences/Universal Access
+// Compile using:
+//      clang -o keys keys.m -framework cocoa
 
 #import <Cocoa/Cocoa.h>
 
