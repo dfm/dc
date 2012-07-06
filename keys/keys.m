@@ -1,3 +1,5 @@
+// Inspired by: https://gist.github.com/3019549
+
 #import <Cocoa/Cocoa.h>
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
