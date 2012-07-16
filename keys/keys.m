@@ -17,7 +17,7 @@
                                            handler:^(NSEvent *event){
         NSDate *now = [[NSDate alloc] init];
         NSDateFormatter *format = [[NSDateFormatter alloc] init];
-        [format setDateFormat:@"yy MM dd HH mm ss"];
+        [format setDateFormat:@"c yy MM dd HH mm ss"];
 
         // Find the currently running app.
         NSArray *runningApps = [[NSWorkspace sharedWorkspace] runningApplications];
