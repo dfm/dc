@@ -16,6 +16,8 @@
     [NSEvent addGlobalMonitorForEventsMatchingMask:NSKeyDownMask
                                            handler:^(NSEvent *event){
         NSDate *now = [[NSDate alloc] init];
+        NSDateFormatter *format = [[NSDateFormatter alloc] init];
+        [format setDateFormat:@"yy MM dd HH mm ss"];
 
         // Find the currently running app.
         NSArray *runningApps = [[NSWorkspace sharedWorkspace] runningApplications];
@@ -26,10 +28,15 @@
                 appName = [app localizedName];
         }
 
-        NSString *update = [NSString stringWithFormat: @"%@ %@ %d %@\n", [now description], appName, event.keyCode, event.charactersIgnoringModifiers];
-        FILE *f = fopen([[NSHomeDirectory() stringByAppendingString: @"/.keys"] UTF8String], "a");
+        NSString *update = [NSString stringWithFormat: @"%d %@ '%@'\n",
+                event.keyCode, [format stringFromDate: now], appName];
+        FILE *f = fopen([[NSHomeDirectory() stringByAppendingString: @"/.keys"]
+                                                            UTF8String], "a");
         fprintf(f, "%s", [update UTF8String]);
         fclose(f);
+
+        [now release];
+        [format release];
     }];
 }
 
