@@ -22,7 +22,7 @@ except ImportError:
 
 def get_git_stats():
     stats = defaultdict(lambda: [0, 0])
-    p = subprocess.check_output(["git", "diff", "--stat"])
+    p = subprocess.check_output(["git", "diff", "--cached", "--stat"])
     for line in p.splitlines()[:-1]:
         fn, changes = line.split("|")
         fn, ext = os.path.splitext(fn.strip())
