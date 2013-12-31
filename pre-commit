@@ -1,0 +1,90 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from __future__ import (division, print_function, absolute_import,
+                        unicode_literals)
+
+__all__ = ["get_git_stats", "get_location"]
+
+import os
+import sqlite3
+import logging
+import subprocess
+from datetime import datetime
+from collections import defaultdict
+
+try:
+    import CoreLocation
+    CoreLocation = CoreLocation
+except ImportError:
+    CoreLocation = None
+
+
+def get_git_stats(fp):
+    stats = defaultdict(lambda: [0, 0])
+    for line in fp:
+        args = line.split()
+        p = subprocess.check_output(["git", "diff", args[1].strip(), "--stat"])
+        for line in p.splitlines()[:-1]:
+            fn, changes = line.split("|")
+            fn, ext = os.path.splitext(fn.strip())
+            stats[ext][0] += changes.count("+")
+            stats[ext][1] += changes.count("-")
+    return stats
+
+
+def get_location():
+    if CoreLocation is None:
+        logging.warn("CoreLocation not available.")
+        return None
+    lm = CoreLocation.CLLocationManager.alloc().init()
+    lm.startUpdatingLocation()
+    l = lm.location()
+    if l is None:
+        logging.warn("CoreLocation couldn't retrieve location.")
+        return None
+    c = l.coordinate()
+    return c.latitude, c.longitude
+
+
+if __name__ == "__main__":
+    coords = get_location()
+
+    db_path = os.path.expanduser(os.path.join("~", ".dfm_git_data.db"))
+
+    with sqlite3.connect(db_path) as conn:
+        c = conn.cursor()
+        c.execute("pragma foreign_keys = ON")
+        c.execute("""create table if not exists repos (
+                id integer primary key,
+                local_path text unique
+            )""")
+        c.execute("""create table if not exists git_events (
+                id integer primary key,
+                repo integer references repos(id),
+                date text,
+                latitude real,
+                longitude real
+            )""")
+
+        # Get the repo id.
+        repo_path = subprocess.check_output(
+            "git rev-parse --show-toplevel".split()).strip()
+        c.execute("select id from repos where local_path=?", (repo_path,))
+        repo_id = c.fetchone()
+        if repo_id is None:
+            c.execute("insert into repos(local_path) values(?)", (repo_path,))
+            c.execute("select id from repos where local_path=?", (repo_path,))
+            repo_id = c.fetchone()
+        repo_id = int(repo_id[0])
+
+        # Insert the event.
+        q = "insert into git_events({cols}) values({vals})"
+        cols = ["repo", "date"]
+        vals = ["?", "?"]
+        args = [repo_id, datetime.now()]
+        if coords is not None:
+            cols += ["latitude", "longitude"]
+            vals += ["?", "?"]
+            args += coords
+        c.execute(q.format(cols=",".join(cols), vals=",".join(vals)), args)
