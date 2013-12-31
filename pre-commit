@@ -20,16 +20,14 @@ except ImportError:
     CoreLocation = None
 
 
-def get_git_stats(fp):
+def get_git_stats():
     stats = defaultdict(lambda: [0, 0])
-    for line in fp:
-        args = line.split()
-        p = subprocess.check_output(["git", "diff", args[1].strip(), "--stat"])
-        for line in p.splitlines()[:-1]:
-            fn, changes = line.split("|")
-            fn, ext = os.path.splitext(fn.strip())
-            stats[ext][0] += changes.count("+")
-            stats[ext][1] += changes.count("-")
+    p = subprocess.check_output(["git", "diff", "--stat"])
+    for line in p.splitlines()[:-1]:
+        fn, changes = line.split("|")
+        fn, ext = os.path.splitext(fn.strip())
+        stats[ext][0] += changes.count("+")
+        stats[ext][1] += changes.count("-")
     return stats
 
 
@@ -44,11 +42,14 @@ def get_location():
         logging.warn("CoreLocation couldn't retrieve location.")
         return None
     c = l.coordinate()
-    return c.latitude, c.longitude
+    results = c.latitude, c.longitude
+    print("You're committing from {0}".format(results))
+    return results
 
 
 if __name__ == "__main__":
     coords = get_location()
+    stats = get_git_stats()
     db_path = os.path.expanduser(os.path.join("~", ".git_events.db"))
     with sqlite3.connect(db_path) as conn:
         c = conn.cursor()
@@ -63,6 +64,12 @@ if __name__ == "__main__":
                 date text,
                 latitude real,
                 longitude real
+            )""")
+        c.execute("""create table if not exists changes (
+                event_id integer references git_events(id),
+                file_ext text,
+                additions integer,
+                deletions integer
             )""")
 
         # Get the repo id.
@@ -86,3 +93,11 @@ if __name__ == "__main__":
             vals += ["?", "?"]
             args += coords
         c.execute(q.format(cols=",".join(cols), vals=",".join(vals)), args)
+        c.execute("select last_insert_rowid() from git_events")
+
+        # Insert the changes into the database.
+        evt_id = int(c.fetchone()[0])
+        c.executemany("""insert into
+                changes(event_id,file_ext,additions,deletions)
+                values(?,?,?,?)""", [(evt_id, k, a, d)
+                                     for k, (a, d) in stats.items()])
