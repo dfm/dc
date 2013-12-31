@@ -50,7 +50,6 @@ def get_location():
 if __name__ == "__main__":
     coords = get_location()
     stats = get_git_stats()
-    print(stats)
     db_path = os.path.expanduser(os.path.join("~", ".git_events.db"))
     with sqlite3.connect(db_path) as conn:
         c = conn.cursor()
