@@ -50,6 +50,7 @@ def get_location():
 if __name__ == "__main__":
     coords = get_location()
     stats = get_git_stats()
+    print(stats)
     db_path = os.path.expanduser(os.path.join("~", ".git_events.db"))
     with sqlite3.connect(db_path) as conn:
         c = conn.cursor()
@@ -93,9 +94,9 @@ if __name__ == "__main__":
             vals += ["?", "?"]
             args += coords
         c.execute(q.format(cols=",".join(cols), vals=",".join(vals)), args)
-        c.execute("select last_insert_rowid() from git_events")
 
         # Insert the changes into the database.
+        c.execute("select last_insert_rowid() from git_events")
         evt_id = int(c.fetchone()[0])
         c.executemany("""insert into
                 changes(event_id,file_ext,additions,deletions)
