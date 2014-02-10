@@ -37,7 +37,11 @@ def get_location():
         return None
     lm = CoreLocation.CLLocationManager.alloc().init()
     lm.startUpdatingLocation()
-    l = lm.location()
+    for i in range(100):
+        l = lm.location()
+        if l is not None:
+            print("Retrieved location after {0} tries".format(i+1))
+            break
     if l is None:
         logging.warn("CoreLocation couldn't retrieve location.")
         return None
