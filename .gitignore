@@ -1,5 +1,5 @@
 *.db
 *.pyc
-ca.danfm.dc.plist
 *.log
 config.sh
+keys
