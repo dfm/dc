@@ -10,7 +10,7 @@
 
         <key>ProgramArguments</key>
         <array>
-            <string>{{ dirname }}/keys</string>
+            <string>{{ dirname }}/bin/keys</string>
         </array>
 
         <key>RunAtLoad</key>
